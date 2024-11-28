@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+    <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Lesson Ordering Site</title>
+    <style></style>
+  </head>
+  <body>
+    <div id="webstore">
+      <header class="border-b-2 p-4 text-white mb-4">
+        <div class="container mx-auto flex justify-between items-center">
+          <h1 class="text-xl text-purple-800 font-bold">{{ message }}</h1>
+          <div>
+            <!-- Check Out button -->
+            <button
+              v-on:click="togglePage"
+              :disabled="!isCheckoutPage && cart.length === 0"
+              class="border border-gray-300 text-purple-600 px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed hover:shadow-md"
+            >
+              <span class="fa-solid fa-cart-plus mr-2"></span>
+              Cart <span v-if="itemInCart > 0">({{ itemInCart }})</span>
+            </button>
+          </div>
+        </div>
+      </header>
+      <main>
+        <!-- Product listing and sort -->
+        <div class="flex" v-if="showProduct">
+          <!-- Sidebar -->
+          <aside class="w-1/4 p-4" v-if="showProduct">
+            <h2 class="font-semibold text-lg mb-4">Sort & Filter</h2>
+
+            <!-- Sort Options -->
+            <div class="mb-6">
+              <h3 class="text-sm font-medium mb-2">Sort By</h3>
+              <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="sort"
+                    value="subject"
+                    class="text-indigo-600"
+                    @change="setSort('subject')"
+                    :checked="sortProperty === 'subject'"
+                  />
+                  <span>Subject</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="sort"
+                    value="location"
+                    class="text-indigo-600"
+                    @change="setSort('location')"
+                    :checked="sortProperty === 'location'"
+                  />
+                  <span>Location</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="sort"
+                    value="price"
+                    class="text-indigo-600"
+                    @change="setSort('price')"
+                    :checked="sortProperty === 'price'"
+                  />
+                  <span>Price</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="sort"
+                    value="available"
+                    class="text-indigo-600"
+                    @change="setSort('available')"
+                    :checked="sortProperty === 'available'"
+                  />
+                  <span>Availability</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Order Options -->
+            <div class="mb-6">
+              <h3 class="text-sm font-medium mb-2">Order</h3>
+              <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="order"
+                    value="asc"
+                    class="text-indigo-600"
+                    @change="setOrder('asc')"
+                    :checked="sortOrder === 'asc'"
+                  />
+                  <span>Ascending</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="order"
+                    value="desc"
+                    class="text-indigo-600"
+                    @change="setOrder('desc')"
+                    :checked="sortOrder === 'desc'"
+                  />
+                  <span>Descending</span>
+                </label>
+              </div>
+            </div>
+          </aside>
+
+          <div
+            class="container mr-5 mb-5 p-8 bg-slate-100 border border-gray-300 rounded-2xl"
+            v-if="showProduct"
+          >
+            <div class="search-container mb-6">
+              <input
+                type="text"
+                placeholder="Search lessons..."
+                class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
+                v-model="searchQuery"
+                @input="fetchSearchResults"
+              />
+            </div>
+
+            <!-- Display Lessons -->
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            >
+              <div
+                v-for="lesson in sortedLessons"
+                :key="lesson.id"
+                class="bg-white border border-gray-300 rounded-lg p-4"
+              >
+                <div class="relative">
+                  <span
+                    class="absolute top-2 right-2 bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded"
+                  >
+                    Spaces: {{ lesson.availableInventory }}
+                  </span>
+
+                  <figure class="flex justify-center mb-4">
+                    <img
+                      :src="lesson.image"
+                      alt="Lesson image"
+                      class="rounded-lg h-64 object-cover"
+                    />
+                  </figure>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">
+                  {{ lesson.subject }}
+                </h2>
+                <p class="text-sm text-gray-600 mb-1">
+                  <i class="fas fa-map-marker-alt mr-1"></i>
+                  {{ lesson.location }}
+                </p>
+
+                <div class="flex items-center justify-between mt-4">
+                  <p
+                    class="text-lg font-semibold text-gray-800 flex items-center"
+                  >
+                    <i class="fas fa-dollar-sign mr-1"></i>
+                    {{ lesson.price }}
+                  </p>
+
+                  <button
+                    v-if="lesson.availableInventory > 0"
+                    v-on:click="addItemToCart(lesson)"
+                    class="bg-purple-500 text-sm text-white py-[5px] px-2 rounded hover:bg-purple-600"
+                  >
+                    Add to Cart
+                  </button>
+                  <button
+                    v-else
+                    :disabled="true"
+                    class="bg-gray-300 text-gray-500 py-[5px] px-2 rounded"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Display Cart -->
+        <div class="container mx-auto p-8" v-else>
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Cart</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              v-for="(item, index) in cart"
+              :key="index"
+              class="border border-gray-300 rounded-lg p-4"
+            >
+              <div class="relative">
+                <span
+                  class="absolute top-[-1px] right-[-1px] bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded"
+                >
+                  x{{ item.quantity }}
+                </span>
+                <figure class="flex justify-center mb-4">
+                  <img
+                    :src="item.image"
+                    alt="Lesson image"
+                    class="rounded-lg h-64 object-cover"
+                  />
+                </figure>
+              </div>
+              <h2 class="text-lg font-semibold text-gray-800">
+                {{ item.subject }} ()
+              </h2>
+              <p class="text-sm text-gray-600">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                {{ item.location }}
+              </p>
+              <p class="text-sm text-gray-600 mb-4">Price: ${{ item.price }}</p>
+              <button
+                v-on:click="removeItemFromCart(index)"
+                class="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+              >
+                Remove
+              </button>
+            </div>
+
+
+            <!-- Checkout Form -->
+            <h2 class="font-semibold text-lg mb-4">Checkout</h2>
+            <form @submit.prevent="submitOrder">
+              <div class="mb-4">
+                <label>Name</label>
+                <input
+                  id="name"
+                  type="text"
+                  v-model="customerName"
+                  class="border rounded p-2 w-full"
+                  placeholder="Enter your name"
+                />
+                
+              </div>
+              <div class="mb-4">
+                <label>Phone</label>
+                <input
+                  id="phone"
+                  type="text"
+                  v-model="customerPhone"
+                  class="border rounded p-2 w-full"
+                  placeholder="Enter your phone number"
+                />
+              
+              </div>
+
+              <button
+                type="submit"
+                class="w-1/2 bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Place Order
+              </button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      let webstore = new Vue({
+        el: "#webstore",
+        data: {
+          message: "StudySphere",
+          showProduct: true,
+          lessons: [],
+          cart: [],
+          isCheckoutPage: false,
+        },
+        created() {
+          this.fetchLessons();
+        },
+        methods: {
+          async fetchLessons() {
+            try {
+              const response = await fetch("http://localhost:3000/api/lessons");
+              if (!response.ok) throw new Error("Failed to fetch lessons.");
+              this.lessons = await response.json();
+            } catch (error) {
+              console.error("Error fetching lessons:", error);
+            }
+          },
+          togglePage() {
+            this.showProduct = !this.showProduct;
+          },
+        computed: {
+          itemInCart() {
+            return this.cart.reduce((total, item) => total + item.quantity, 0);
+          },
+        },
+      }});
+    </script>
+  </body>
+</html>
