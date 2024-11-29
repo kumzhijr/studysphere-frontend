@@ -278,6 +278,7 @@
           isCheckoutPage: false,
           sortProperty: "subject",
           sortOrder: "asc",
+          searchQuery: "",
         },
         created() {
           this.fetchLessons();
@@ -290,6 +291,32 @@
               this.lessons = await response.json();
             } catch (error) {
               console.error("Error fetching lessons:", error);
+            }
+          },
+          async fetchSearchResults() {
+            if (!this.searchQuery.trim()) {
+              // If the search query is empty, reset to all lessons
+              this.fetchLessons();
+              return;
+            }
+
+            try {
+              const response = await fetch(
+                `http://localhost:3000/search?q=${encodeURIComponent(
+                  this.searchQuery
+                )}`
+              );
+              if (response.ok) {
+                const data = await response.json();
+                this.lessons = data;
+              } else {
+                console.error(
+                  "Error fetching search results:",
+                  response.statusText
+                );
+              }
+            } catch (error) {
+              console.error("Error:", error);
             }
           },
           togglePage() {
@@ -309,28 +336,35 @@
               );
             },
             sortedLessons() {
-            // Sort the filtered lessons based on selected sort property and order
-            return filteredLessons.sort((a, b) => {
-              let valueA = a[this.sortProperty];
-              let valueB = b[this.sortProperty];
+              // Filter lessons based on the search query
+              const filteredLessons = this.lessons.filter((lesson) => {
+                const query = this.searchQuery.toLowerCase();
+                return lesson.subject.toLowerCase().includes(query);
+              });
 
-              if (
-                this.sortProperty === "price" ||
-                this.sortProperty === "available"
-              ) {
-                valueA = parseFloat(valueA);
-                valueB = parseFloat(valueB);
-              }
+              // Sort the filtered lessons based on selected sort property and order
+              return filteredLessons.sort((a, b) => {
+                let valueA = a[this.sortProperty];
+                let valueB = b[this.sortProperty];
 
-              if (this.sortOrder === "asc") {
-                return valueA > valueB ? 1 : -1;
-              } else {
-                return valueA < valueB ? 1 : -1;
-              }
-            });
+                if (
+                  this.sortProperty === "price" ||
+                  this.sortProperty === "available"
+                ) {
+                  valueA = parseFloat(valueA);
+                  valueB = parseFloat(valueB);
+                }
+
+                if (this.sortOrder === "asc") {
+                  return valueA > valueB ? 1 : -1;
+                } else {
+                  return valueA < valueB ? 1 : -1;
+                }
+              });
+            },
           },
-          },
-      }});
+        },
+      });
     </script>
   </body>
 </html>
