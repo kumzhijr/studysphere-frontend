@@ -360,6 +360,61 @@
             );
             console.log(this.isValidOrder());
           },
+          submitOrder() {
+            console.log("submitOrder called");
+
+            this.validationTriggered = true; // Trigger validation on submit
+
+            if (this.isValidOrder()) {
+              const orderData = {
+                customerName: this.customerName,
+                customerPhone: this.customerPhone,
+                cart: this.cart.map((item) => ({
+                  lessonId: item.id,
+                  quantity: 1,
+                  price: item.price,
+                })),
+                totalPrice: this.totalPrice,
+              };
+
+              fetch("http://localhost:3000/api/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData),
+              })
+                .then((response) => {
+                  if (!response.ok) throw new Error("Failed to place order.");
+                  return response.json();
+                })
+                .then((data) => {
+                  alert(`Order placed successfully!`);
+                  // alert(`Order placed successfully! Order ID: ${data.orderId}`);
+
+                  this.cart.forEach((cartItem) => {
+                    const updatedInventory =
+                      cartItem.availableInventory - cartItem.quantity;
+                    // Call the updateInventory method for each cart item
+                    this.updateLessonInventory(cartItem.id, updatedInventory);
+                  });
+
+                  this.clearCart();
+                  this.customerName = "";
+                  this.customerPhone = "";
+                  this.validationTriggered = false;
+                })
+                .catch((error) => {
+                  console.error(
+                    "Error submitting order:",
+                    error,
+                    error.response || ""
+                  );
+                  alert("Error placing order. Please try again.");
+                });
+            } else {
+              console.log("Validation Failed");
+              // alert("Please enter valid name and phone number.");
+            }
+          },
           computed: {
             itemInCart() {
               return this.cart.reduce(
