@@ -231,7 +231,6 @@
               </button>
             </div>
 
-
             <!-- Checkout Form -->
             <h2 class="font-semibold text-lg mb-4">Checkout</h2>
             <form @submit.prevent="submitOrder">
@@ -244,7 +243,6 @@
                   class="border rounded p-2 w-full"
                   placeholder="Enter your name"
                 />
-                
               </div>
               <div class="mb-4">
                 <label>Phone</label>
@@ -255,7 +253,6 @@
                   class="border rounded p-2 w-full"
                   placeholder="Enter your phone number"
                 />
-              
               </div>
 
               <button
@@ -279,6 +276,8 @@
           lessons: [],
           cart: [],
           isCheckoutPage: false,
+          sortProperty: "subject",
+          sortOrder: "asc",
         },
         created() {
           this.fetchLessons();
@@ -296,11 +295,41 @@
           togglePage() {
             this.showProduct = !this.showProduct;
           },
-        computed: {
-          itemInCart() {
-            return this.cart.reduce((total, item) => total + item.quantity, 0);
+          setSort(property) {
+            this.sortProperty = property;
           },
-        },
+          setOrder(order) {
+            this.sortOrder = order;
+          },
+          computed: {
+            itemInCart() {
+              return this.cart.reduce(
+                (total, item) => total + item.quantity,
+                0
+              );
+            },
+            sortedLessons() {
+            // Sort the filtered lessons based on selected sort property and order
+            return filteredLessons.sort((a, b) => {
+              let valueA = a[this.sortProperty];
+              let valueB = b[this.sortProperty];
+
+              if (
+                this.sortProperty === "price" ||
+                this.sortProperty === "available"
+              ) {
+                valueA = parseFloat(valueA);
+                valueB = parseFloat(valueB);
+              }
+
+              if (this.sortOrder === "asc") {
+                return valueA > valueB ? 1 : -1;
+              } else {
+                return valueA < valueB ? 1 : -1;
+              }
+            });
+          },
+          },
       }});
     </script>
   </body>
