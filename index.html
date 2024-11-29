@@ -231,6 +231,11 @@
               </button>
             </div>
 
+            <!-- Total Price -->
+            <div class="my-6 text-lg font-bold text-gray-800">
+              Total Price: ${{ totalPrice }}
+            </div>
+
             <!-- Checkout Form -->
             <h2 class="font-semibold text-lg mb-4">Checkout</h2>
             <form @submit.prevent="submitOrder">
@@ -389,6 +394,12 @@
                 }
               });
             },
+            totalPrice() {
+            return this.cart.reduce(
+              (total, item) => total + item.price * item.quantity,
+              0
+            );
+          },
           },
         },
       });
