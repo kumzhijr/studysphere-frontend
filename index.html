@@ -443,6 +443,21 @@
             this.cart = [];
             this.showProduct = true;
           },
+          removeItemFromCart(index) {
+            const removedItem = this.cart[index];
+            removedItem.quantity -= 1;
+
+            const lesson = this.lessons.find(
+              (lesson) => lesson.id === removedItem.id
+            );
+            if (lesson) {
+              lesson.availableInventory += 1; // Restore inventory
+            }
+
+            if (removedItem.quantity <= 0) {
+              this.cart.splice(index, 1); // Remove item if quantity is zero
+            }
+          },
           computed: {
             itemInCart() {
               return this.cart.reduce(
