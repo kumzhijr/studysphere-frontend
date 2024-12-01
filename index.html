@@ -341,6 +341,9 @@
           togglePage() {
             this.showProduct = !this.showProduct;
           },
+          itemsLeft(lesson) {
+            return lesson.available;
+          },
           setSort(property) {
             this.sortProperty = property;
           },
