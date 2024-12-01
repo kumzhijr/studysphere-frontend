@@ -486,7 +486,8 @@
                 console.error("Error updating inventory:", error);
               });
           },
-          computed: {
+        },
+        computed: {
             itemInCart() {
               return this.cart.reduce(
                 (total, item) => total + item.quantity,
@@ -526,7 +527,6 @@
             );
           },
           },
-        },
       });
     </script>
   </body>
