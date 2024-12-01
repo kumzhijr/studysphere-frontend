@@ -415,6 +415,19 @@
               // alert("Please enter valid name and phone number.");
             }
           },
+          clearCart() {
+            this.cart.forEach((cartItem) => {
+              const lesson = this.lessons.find(
+                (lesson) => lesson.id === cartItem.id
+              );
+              if (lesson) {
+                lesson.availableInventory += cartItem.quantity;
+              }
+            });
+            this.fetchLessons();
+            this.cart = [];
+            this.showProduct = true;
+          },
           computed: {
             itemInCart() {
               return this.cart.reduce(
