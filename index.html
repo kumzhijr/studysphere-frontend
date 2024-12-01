@@ -315,8 +315,7 @@
             }
           },
           async fetchSearchResults() {
-            if (!this.searchQuery.trim()) {
-              // If the search query is empty, reset to all lessons
+            if (!this.searchQuery.trim()) {s
               this.fetchLessons();
               return;
             }
@@ -354,7 +353,7 @@
             const phoneRegex = /^[0-9\s-]+$/;
             const isNameNotEmpty = this.customerName.trim() !== "";
 
-            // Validate both name and phone
+
             return (
               isNameNotEmpty &&
               nameRegex.test(this.customerName) &&
@@ -363,7 +362,7 @@
             console.log(this.isValidOrder());
           },
           submitOrder() {
-            this.validationTriggered = true; // Trigger validation on submit
+            this.validationTriggered = true;
 
             if (this.isValidOrder()) {
               const orderData = {
@@ -388,12 +387,11 @@
                 })
                 .then((data) => {
                   alert(`Order placed successfully!`);
-                  // alert(`Order placed successfully! Order ID: ${data.orderId}`);
 
                   this.cart.forEach((cartItem) => {
                     const updatedInventory =
                       cartItem.availableInventory - cartItem.quantity;
-                    // Call the updateInventory method for each cart item
+                    
                     this.updateLessonInventory(cartItem.id, updatedInventory);
                   });
 
@@ -412,7 +410,6 @@
                 });
             } else {
               console.log("Validation Failed");
-              // alert("Please enter valid name and phone number.");
             }
           },
           addItemToCart(lesson) {
@@ -427,7 +424,7 @@
                 this.cart.push({ ...lesson, quantity: 1 });
               }
 
-              lesson.availableInventory -= 1; // Decrease inventory
+              lesson.availableInventory -= 1;
             }
           },
           clearCart() {
@@ -451,11 +448,11 @@
               (lesson) => lesson.id === removedItem.id
             );
             if (lesson) {
-              lesson.availableInventory += 1; // Restore inventory
+              lesson.availableInventory += 1;
             }
 
             if (removedItem.quantity <= 0) {
-              this.cart.splice(index, 1); // Remove item if quantity is zero
+              this.cart.splice(index, 1); 
             }
           },
           cartCount(id) {
@@ -499,7 +496,6 @@
                 return lesson.subject.toLowerCase().includes(query);
               });
 
-              // Sort the filtered lessons based on selected sort property and order
               return filteredLessons.sort((a, b) => {
                 let valueA = a[this.sortProperty];
                 let valueB = b[this.sortProperty];
