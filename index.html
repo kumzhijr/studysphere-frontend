@@ -192,10 +192,15 @@
           </div>
         </div>
 
-        <!-- Display Cart -->
+        <!-- Cart Section -->
         <div class="container mx-auto p-8" v-else>
+          <!-- Heading -->
           <h2 class="text-2xl font-bold text-gray-800 mb-6">Cart</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <!-- Cart Grid -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          >
             <div
               v-for="(item, index) in cart"
               :key="index"
@@ -216,7 +221,7 @@
                 </figure>
               </div>
               <h2 class="text-lg font-semibold text-gray-800">
-                {{ item.subject }} ()
+                {{ item.subject }}
               </h2>
               <p class="text-sm text-gray-600">
                 <i class="fas fa-map-marker-alt mr-1"></i>
@@ -230,61 +235,62 @@
                 Remove
               </button>
             </div>
+          </div>
 
-            <!-- Total Price -->
-            <div class="my-6 text-lg font-bold text-gray-800">
-              Total Price: ${{ totalPrice }}
-            </div>
+          <!-- Total Price Section -->
+          <div class="border-t border-gray-300 pt-6 mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Total Price</h3>
+            <p class="text-lg text-gray-700 font-semibold">${{ totalPrice }}</p>
+          </div>
 
-            <!-- Checkout Form -->
-            <div class="border-t  border-gray-300 pt-6">
-              <h2 class="text-xl font-bold text-gray-800 mb-4">Checkout</h2>
-              <form @submit.prevent="submitOrder" class="space-y-4">
-                <div>
-                  <label for="name" class="block font-medium text-gray-700"
-                    >Name</label
-                  >
-                  <input
-                    id="name"
-                    type="text"
-                    v-model="customerName"
-                    class="border rounded p-2 w-full"
-                    placeholder="Enter your name"
-                  />
-                  <p
-                    v-if="validationTriggered && !isValidOrder()"
-                    class="text-red-500 text-sm"
-                  >
-                    Name must contain only letters and spaces.
-                  </p>
-                </div>
-                <div>
-                  <label for="phone" class="block font-medium text-gray-700"
-                    >Phone</label
-                  >
-                  <input
-                    id="phone"
-                    type="text"
-                    v-model="customerPhone"
-                    class="border rounded p-2 w-full"
-                    placeholder="Enter your phone number"
-                  />
-                  <p
-                    v-if="validationTriggered && !isValidOrder()"
-                    class="text-red-500 text-sm"
-                  >
-                    Phone must contain only numbers.
-                  </p>
-                </div>
-                <button
-                  type="submit"
-                  :disabled="!isValidOrder()"
-                  class="w-full md:w-1/2 bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          <!-- Checkout Form -->
+          <div class="border-t border-gray-300 pt-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Checkout</h2>
+            <form @submit.prevent="submitOrder" class="space-y-4">
+              <div>
+                <label for="name" class="block font-medium text-gray-700"
+                  >Name</label
                 >
-                  Place Order
-                </button>
-              </form>
-            </div>
+                <input
+                  id="name"
+                  type="text"
+                  v-model="customerName"
+                  class="border rounded p-2 w-full"
+                  placeholder="Enter your name"
+                />
+                <p
+                  v-if="validationTriggered && !isValidOrder()"
+                  class="text-red-500 text-sm"
+                >
+                  Name must contain only letters and spaces.
+                </p>
+              </div>
+              <div>
+                <label for="phone" class="block font-medium text-gray-700"
+                  >Phone</label
+                >
+                <input
+                  id="phone"
+                  type="text"
+                  v-model="customerPhone"
+                  class="border rounded p-2 w-full"
+                  placeholder="Enter your phone number"
+                />
+                <p
+                  v-if="validationTriggered && !isValidOrder()"
+                  class="text-red-500 text-sm"
+                >
+                  Phone must contain only numbers.
+                </p>
+              </div>
+              <button
+                type="submit"
+                :disabled="!isValidOrder()"
+                class="w-full md:w-1/2 bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Place Order
+              </button>
+            </form>
           </div>
         </div>
       </main>
@@ -494,43 +500,39 @@
               .catch((error) => {
                 console.error("Error updating inventory:", error);
               });
-          },  
-        },
-          computed: {
-            itemInCart() {
-              return this.cart.reduce(
-                (total, item) => total + item.quantity,
-                0
-              );
-            },
-            sortedLessons() {
-              const sorted = [...this.lessons].sort((a, b) => {
-                if (
-                  this.sortProperty === "price" ||
-                  this.sortProperty === "available"
-                ) {
-                  return this.sortOrder === "asc"
-                    ? a[this.sortProperty] - b[this.sortProperty]
-                    : b[this.sortProperty] - a[this.sortProperty];
-                }
-                const propA = a[this.sortProperty]?.toString().toLowerCase();
-                const propB = b[this.sortProperty]?.toString().toLowerCase();
-                if (this.sortOrder === "asc") {
-                  return propA < propB ? -1 : propA > propB ? 1 : 0;
-                }
-                return propA > propB ? -1 : propA < propB ? 1 : 0;
-              });
-              return sorted;
-            },
-            totalPrice() {
-              return this.cart.reduce(
-                (total, item) => total + item.price * item.quantity,
-                0
-              );
-            },
           },
         },
-      );
+        computed: {
+          itemInCart() {
+            return this.cart.reduce((total, item) => total + item.quantity, 0);
+          },
+          sortedLessons() {
+            const sorted = [...this.lessons].sort((a, b) => {
+              if (
+                this.sortProperty === "price" ||
+                this.sortProperty === "available"
+              ) {
+                return this.sortOrder === "asc"
+                  ? a[this.sortProperty] - b[this.sortProperty]
+                  : b[this.sortProperty] - a[this.sortProperty];
+              }
+              const propA = a[this.sortProperty]?.toString().toLowerCase();
+              const propB = b[this.sortProperty]?.toString().toLowerCase();
+              if (this.sortOrder === "asc") {
+                return propA < propB ? -1 : propA > propB ? 1 : 0;
+              }
+              return propA > propB ? -1 : propA < propB ? 1 : 0;
+            });
+            return sorted;
+          },
+          totalPrice() {
+            return this.cart.reduce(
+              (total, item) => total + item.price * item.quantity,
+              0
+            );
+          },
+        },
+      });
     </script>
   </body>
 </html>
