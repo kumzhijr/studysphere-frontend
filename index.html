@@ -415,6 +415,21 @@
               // alert("Please enter valid name and phone number.");
             }
           },
+          addItemToCart(lesson) {
+            if (lesson.availableInventory > 0) {
+              const cartItemIndex = this.cart.findIndex(
+                (item) => item.id === lesson.id
+              );
+
+              if (cartItemIndex !== -1) {
+                this.cart[cartItemIndex].quantity += 1;
+              } else {
+                this.cart.push({ ...lesson, quantity: 1 });
+              }
+
+              lesson.availableInventory -= 1; // Decrease inventory
+            }
+          },
           clearCart() {
             this.cart.forEach((cartItem) => {
               const lesson = this.lessons.find(
